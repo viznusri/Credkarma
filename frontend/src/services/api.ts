@@ -11,7 +11,7 @@ import {
 } from '../types';
 
 const API_URL = process.env.NODE_ENV === 'production' 
-  ? '/api'  // In production, Firebase rewrites will handle this
+  ? 'https://credkarma.onrender.com/api'  // Production backend on Render
   : 'http://localhost:5001/api';
 
 const api: AxiosInstance = axios.create({
