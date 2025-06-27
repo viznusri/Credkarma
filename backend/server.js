@@ -13,7 +13,22 @@ const app = express();
 
 // CORS configuration - MUST come before other middleware
 const corsOptions = {
-  origin: true, // Allow all origins in development
+  origin: function (origin, callback) {
+    const allowedOrigins = [
+      'https://credkarma.web.app',
+      'https://credkarma.firebaseapp.com',
+      'http://localhost:3000',
+      'http://localhost:3001'
+    ];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(null, true); // For now, allow all origins to debug
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
@@ -81,6 +96,22 @@ const dashboardRoutes = require('./routes/dashboard');
 // Handle preflight requests explicitly
 app.options('*', cors(corsOptions));
 
+// Root endpoint
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'CREDKarma Backend API',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      users: '/api/users',
+      behaviors: '/api/behaviors',
+      rewards: '/api/rewards',
+      dashboard: '/api/dashboard'
+    }
+  });
+});
+
 // Apply general rate limiting to all API routes
 app.use('/api', limiter);
 
@@ -102,11 +133,27 @@ app.use((err, req, res, next) => {
   res.status(500).json({ message: 'Something went wrong!' });
 });
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('MongoDB connection error:', err));
+// MongoDB connection with retry logic
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connected successfully');
+  } catch (err) {
+    console.error('MongoDB connection error:', err);
+    // Retry connection after 5 seconds
+    console.log('Retrying MongoDB connection in 5 seconds...');
+    setTimeout(connectDB, 5000);
+  }
+};
+
+// Connect to MongoDB
+connectDB();
 
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 });
