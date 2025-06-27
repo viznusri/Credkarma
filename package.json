@@ -1,0 +1,34 @@
+{
+  "name": "credkarma-web",
+  "version": "1.0.0",
+  "description": "CREDKarma Full Stack Web Application",
+  "scripts": {
+    "install:all": "npm install && cd frontend && npm install && cd ../functions && npm install",
+    "frontend": "cd frontend && npm start",
+    "backend": "cd backend && npm run dev",
+    "start": "concurrently --kill-others \"npm run backend\" \"npm run frontend\"",
+    "dev": "npm run start",
+    "start:frontend": "npm run frontend",
+    "start:backend": "npm run backend",
+    "build:frontend": "cd frontend && npm run build",
+    "serve:frontend": "cd frontend && npm start",
+    "serve:backend": "cd backend && npm run dev",
+    "serve:functions": "firebase emulators:start --only functions",
+    "deploy:functions": "firebase deploy --only functions",
+    "deploy:hosting": "npm run build:frontend && firebase deploy --only hosting",
+    "deploy": "npm run build:frontend && firebase deploy",
+    "config:set": "firebase functions:config:set mongodb.uri=\"YOUR_MONGODB_URI\" jwt.secret=\"YOUR_JWT_SECRET\"",
+    "config:get": "firebase functions:config:get"
+  },
+  "keywords": [
+    "firebase",
+    "react",
+    "nodejs",
+    "mongodb"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^9.2.0"
+  }
+}
