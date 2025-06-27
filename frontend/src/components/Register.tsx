@@ -48,124 +48,192 @@ const Register: React.FC = () => {
     }
   };
 
+  React.useEffect(() => {
+    // Create animated particles
+    const createParticle = () => {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particle.style.left = Math.random() * 100 + '%';
+      particle.style.animationDuration = Math.random() * 10 + 10 + 's';
+      particle.style.animationDelay = Math.random() * 5 + 's';
+      document.querySelector('.particles')?.appendChild(particle);
+      
+      setTimeout(() => particle.remove(), 20000);
+    };
+    
+    const interval = setInterval(createParticle, 500);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div className="auth-page-minimal">
-      <div className="auth-container-minimal">
-        <div className="auth-brand-minimal">
-          <h1 className="brand-logo">
-            CRED<span className="brand-accent">Karma</span>
-          </h1>
+    <div className="auth-page-modern">
+      <div className="particles"></div>
+      <div className="auth-split-container">
+        <div className="auth-left-panel">
+          <div className="auth-welcome-content">
+            <h1 className="auth-welcome-title">
+              Join <span className="brand-highlight">CREDKarma</span>
+            </h1>
+            <p className="auth-welcome-subtitle">
+              Start your journey to better behaviors and amazing rewards.
+            </p>
+            <div className="auth-features">
+              <div className="auth-feature">
+                <div className="feature-icon"><i className="fas fa-rocket"></i></div>
+                <p>Quick sign-up process</p>
+              </div>
+              <div className="auth-feature">
+                <div className="feature-icon"><i className="fas fa-shield-alt"></i></div>
+                <p>Secure and private</p>
+              </div>
+              <div className="auth-feature">
+                <div className="feature-icon"><i className="fas fa-gift"></i></div>
+                <p>Instant rewards access</p>
+              </div>
+            </div>
+          </div>
         </div>
         
-        <div className="auth-content-minimal">
-          <div className="auth-header-minimal">
-            <h2>Create account</h2>
-            <p>Already have an account? <Link to="/login" className="link-minimal">Sign in</Link></p>
-          </div>
-
-          <form onSubmit={handleSubmit(onSubmit)} className="auth-form-minimal">
-            <div className="form-group-minimal">
-              <label htmlFor="username">Username</label>
-              <input
-                id="username"
-                type="text"
-                {...register('username')}
-                className={errors.username ? 'input-minimal error' : 'input-minimal'}
-                autoComplete="username"
-              />
-              {errors.username && (
-                <span className="error-text">{errors.username.message}</span>
-              )}
+        <div className="auth-right-panel">
+          <div className="auth-form-container">
+            <div className="auth-form-header">
+              <h2 className="auth-form-title">Create your account</h2>
+              <p className="auth-form-subtitle">
+                Already have an account? <Link to="/login" className="auth-link">Sign in</Link>
+              </p>
             </div>
 
-            <div className="form-group-minimal">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                type="email"
-                {...register('email')}
-                className={errors.email ? 'input-minimal error' : 'input-minimal'}
-                autoComplete="email"
-              />
-              {errors.email && (
-                <span className="error-text">{errors.email.message}</span>
-              )}
-            </div>
-
-            <div className="form-group-minimal">
-              <label htmlFor="password">Password</label>
-              <div className="password-field">
-                <input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  {...register('password')}
-                  className={errors.password ? 'input-minimal error' : 'input-minimal'}
-                  autoComplete="new-password"
-                />
-                <button
-                  type="button"
-                  className="show-password-btn"
-                  onClick={() => setShowPassword(!showPassword)}
-                  tabIndex={-1}
-                >
-                  {showPassword ? (
-                    <i className="fas fa-eye-slash"></i>
-                  ) : (
-                    <i className="fas fa-eye"></i>
-                  )}
-                </button>
+            <form onSubmit={handleSubmit(onSubmit)} className="auth-form-modern">
+              <div className="form-group-modern">
+                <label className="form-label" htmlFor="username">
+                  Username
+                </label>
+                <div className="input-with-icon">
+                  <i className="fas fa-user input-icon-left"></i>
+                  <input
+                    id="username"
+                    type="text"
+                    {...register('username')}
+                    className={`form-input with-icon ${errors.username ? 'input-error' : ''}`}
+                    placeholder="Choose a username"
+                    autoComplete="username"
+                  />
+                </div>
+                {errors.username && (
+                  <span className="error-message">{errors.username.message}</span>
+                )}
               </div>
-              {errors.password && (
-                <span className="error-text">{errors.password.message}</span>
-              )}
-            </div>
 
-            <div className="form-group-minimal">
-              <label htmlFor="role">Account Type</label>
-              <select
-                id="role"
-                {...register('role')}
-                className={errors.role ? 'input-minimal error' : 'input-minimal'}
-                defaultValue=""
+              <div className="form-group-modern">
+                <label className="form-label" htmlFor="email">
+                  Email
+                </label>
+                <div className="input-with-icon">
+                  <i className="fas fa-envelope input-icon-left"></i>
+                  <input
+                    id="email"
+                    type="email"
+                    {...register('email')}
+                    className={`form-input with-icon ${errors.email ? 'input-error' : ''}`}
+                    placeholder="Enter your email"
+                    autoComplete="email"
+                  />
+                </div>
+                {errors.email && (
+                  <span className="error-message">{errors.email.message}</span>
+                )}
+              </div>
+
+              <div className="form-group-modern">
+                <label className="form-label" htmlFor="password">
+                  Password
+                </label>
+                <div className="input-with-icon">
+                  <i className="fas fa-lock input-icon-left"></i>
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    {...register('password')}
+                    className={`form-input with-icon ${errors.password ? 'input-error' : ''}`}
+                    placeholder="Create a password"
+                    autoComplete="new-password"
+                  />
+                  <button
+                    type="button"
+                    className="password-toggle"
+                    onClick={() => setShowPassword(!showPassword)}
+                    tabIndex={-1}
+                  >
+                    {showPassword ? (
+                      <i className="fas fa-eye-slash"></i>
+                    ) : (
+                      <i className="fas fa-eye"></i>
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <span className="error-message">{errors.password.message}</span>
+                )}
+              </div>
+
+              <div className="form-group-modern">
+                <label className="form-label" htmlFor="role">
+                  Account Type
+                </label>
+                <div className="input-with-icon">
+                  <i className="fas fa-user-tag input-icon-left"></i>
+                  <select
+                    id="role"
+                    {...register('role')}
+                    className={`form-input with-icon ${errors.role ? 'input-error' : ''}`}
+                    defaultValue=""
+                  >
+                    <option value="" disabled>Select account type</option>
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                {errors.role && (
+                  <span className="error-message">{errors.role.message}</span>
+                )}
+              </div>
+
+              <div className="checkbox-group-modern">
+                <label className="checkbox-label">
+                  <input 
+                    type="checkbox" 
+                    checked={acceptedTerms}
+                    onChange={(e) => setAcceptedTerms(e.target.checked)}
+                    className="checkbox-input"
+                  />
+                  <span className="checkbox-custom">
+                    <i className="fas fa-check"></i>
+                  </span>
+                  <span className="checkbox-text">
+                    I agree to the <Link to="/terms" className="terms-link">Terms and Conditions</Link> and <Link to="/privacy" className="terms-link">Privacy Policy</Link>
+                  </span>
+                </label>
+                {!acceptedTerms && isSubmitting && (
+                  <span className="error-message">You must accept the terms and conditions</span>
+                )}
+              </div>
+
+              <button 
+                type="submit" 
+                className="submit-button-modern"
+                disabled={isSubmitting || !acceptedTerms}
               >
-                <option value="" disabled>Select account type</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-              {errors.role && (
-                <span className="error-text">{errors.role.message}</span>
-              )}
-            </div>
-
-            <div className="form-group-minimal checkbox-group">
-              <label className="checkbox-minimal">
-                <input 
-                  type="checkbox" 
-                  checked={acceptedTerms}
-                  onChange={(e) => setAcceptedTerms(e.target.checked)}
-                />
-                <span className="checkbox-text">
-                  I agree to the <Link to="#" className="link-accent">Terms and Conditions</Link> and <Link to="#" className="link-accent">Privacy Policy</Link>
-                </span>
-              </label>
-              {!acceptedTerms && isSubmitting && (
-                <span className="error-text">You must accept the terms and conditions</span>
-              )}
-            </div>
-
-            <button 
-              type="submit" 
-              className="button-minimal"
-              disabled={isSubmitting || !acceptedTerms}
-              style={{ opacity: !acceptedTerms ? 0.6 : 1 }}
-            >
-              {isSubmitting ? (
-                <ClipLoader size={16} color="#000" />
-              ) : (
-                'Create account'
-              )}
-            </button>
-          </form>
+                {isSubmitting ? (
+                  <ClipLoader size={18} color="#fff" />
+                ) : (
+                  <>
+                    Create account
+                    <i className="fas fa-arrow-right button-icon"></i>
+                  </>
+                )}
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>
