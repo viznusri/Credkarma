@@ -9,6 +9,15 @@ const rateLimit = require('express-rate-limit');
 
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('Missing required environment variables:', missingEnvVars);
+  console.error('Please set these in your .env file or deployment environment');
+}
+
 const app = express();
 
 // CORS configuration - MUST come before other middleware
@@ -117,7 +126,26 @@ app.use('/api', limiter);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'OK', message: 'CREDKarma API is running' });
+  const health = {
+    status: 'OK',
+    message: 'CREDKarma API is running',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+    database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  };
+  res.json(health);
+});
+
+// Debug endpoint to check environment
+app.get('/api/debug/env', (req, res) => {
+  res.json({
+    NODE_ENV: process.env.NODE_ENV || 'not set',
+    PORT: process.env.PORT || 'not set',
+    MONGODB_URI: process.env.MONGODB_URI ? 'set (hidden)' : 'NOT SET',
+    JWT_SECRET: process.env.JWT_SECRET ? 'set (hidden)' : 'NOT SET',
+    mongooseState: mongoose.connection.readyState,
+    mongooseStateText: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState]
+  });
 });
 
 // Routes with specific rate limiting
@@ -129,8 +157,31 @@ app.use('/api/dashboard', dashboardRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Error:', err);
+  
+  // Mongoose validation error
+  if (err.name === 'ValidationError') {
+    return res.status(400).json({
+      message: 'Validation Error',
+      errors: Object.values(err.errors).map(e => e.message)
+    });
+  }
+  
+  // JWT errors
+  if (err.name === 'JsonWebTokenError') {
+    return res.status(401).json({ message: 'Invalid token' });
+  }
+  
+  // MongoDB connection errors
+  if (err.name === 'MongoNetworkError') {
+    return res.status(503).json({ message: 'Database connection error' });
+  }
+  
+  // Default error
+  res.status(err.status || 500).json({
+    message: err.message || 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err : {}
+  });
 });
 
 // MongoDB connection with retry logic
